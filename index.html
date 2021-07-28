@@ -6,17 +6,29 @@
     fill: lightblue;
     stroke: black;
   }
+
   .gasoline {
     fill: lightblue;
   }
+
   .electricity {
     fill: greenyellow;
   }
+
   .diesel {
     fill: pink;
   }
+
   div {
     margin: 2em;
+  }
+
+  p {
+    font-size: 20px;
+  }
+
+  #page-btn-container {
+    margin-left: 7em;
   }
 </style>
 
@@ -31,13 +43,10 @@
     <h2>Overview</h2>
     <div id="container">
       <svg width=420 height=420 id="scatterplot" style="display:inline-block"></svg>
-      <p style="display:inline-block; vertical-align: top;" id="intro">
-        In this slide show, we discuss how automobile specifications such as number of engine cyclinders,<br>
-        make, and fuel types play a role in the fuel efficiency of automobiles.
-      </p>
-      <div>
+      <p style="display:inline-block; vertical-align: top;" id="intro"></p>
+      <div id="page-btn-container">
         <button onclick="prevPage()">Prev</button>
-        <span id="page">Page 1</span>
+        <span id="page"></span>
         <button onclick="nextPage()">Next</button>
       </div>
     </div>
@@ -74,8 +83,8 @@
       var mousemove = (d, e) => {
         tooltip
           .html(`Make: ${d.Make}<br>Fuel: ${d.Fuel}<br>Average City MPG: ${d.AverageCityMPG}<br>Average Highway MPG: ${d.AverageHighwayMPG}<br>Engine Cylinders: ${d.EngineCylinders}`)
-          .style("left", (event.x)/2 + "px")
-          .style("top", (event.y)/2 + "px")
+          .style("left", (event.x) / 2 + "px")
+          .style("top", (event.y) / 2 + "px")
       }
       var mouseleave = (d, _) => {
         tooltip
@@ -92,7 +101,7 @@
       d3.select('#scatterplot').append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 0)
-        .attr("x",0 - (height / 2 + margin))
+        .attr("x", 0 - (height / 2 + margin))
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text("Average Highway MPG");
@@ -105,7 +114,7 @@
 
       d3.select('#scatterplot').append("text")
         .attr("transform",
-              "translate(" + (width/2 + margin) + " ," + (margin + height + 40) + ")")
+          "translate(" + (width / 2 + margin) + " ," + (margin + height + 40) + ")")
         .style("text-anchor", "middle")
         .text("Average City MPG");
 
@@ -116,35 +125,217 @@
         .data(data)
         .enter()
         .append('circle')
-          .attr('class', (d, _) => d.Fuel.toLowerCase())
-          .attr('cx', (d, _) => x(d.AverageCityMPG))
-          .attr('cy', (d, _) => y(d.AverageHighwayMPG))
-          .attr('r', (d, _) => parseInt(d.EngineCylinders) + 2)
+        .attr('class', (d, _) => d.Fuel.toLowerCase())
+        .attr('cx', (d, _) => x(d.AverageCityMPG))
+        .attr('cy', (d, _) => y(d.AverageHighwayMPG))
+        .attr('r', (d, _) => parseInt(d.EngineCylinders) + 2)
         .on("mouseover", mouseover)
         .on("mousemove", mousemove)
         .on("mouseout", mouseleave);
 
+      // Legend
+      d3.select('#scatterplot').append("circle").attr("cx", 300).attr("cy", 200).attr("r", 3).style("fill", "lightblue")
+      d3.select('#scatterplot').append("circle").attr("cx", 300).attr("cy", 220).attr("r", 3).style("fill", "pink")
+      d3.select('#scatterplot').append("circle").attr("cx", 300).attr("cy", 240).attr("r", 3).style("fill", "greenyellow")
+      d3.select('#scatterplot').append("text").attr("x", 320).attr("y", 200).text("Gasoline").style("font-size", "15px").attr("alignment-baseline", "middle")
+      d3.select('#scatterplot').append("text").attr("x", 320).attr("y", 220).text("Diesel").style("font-size", "15px").attr("alignment-baseline", "middle")
+      d3.select('#scatterplot').append("text").attr("x", 320).attr("y", 240).text("Electricity").style("font-size", "15px").attr("alignment-baseline", "middle")
+
+      d3.select('#page').text(`Page ${page} / 3`)
+
+      let p = `
+      In this presentation, we discuss how automobile specifications such as number of engine cyclinders,<br>
+      make, and fuel types play a role in the fuel efficiency of automobiles. From the scatterplot on the left,<br>
+      it shows that the average miles per galon (MPG) on the highways is positively correlated with the average<br>
+      miles per galon (MPG) in the cities.<br><br>
+      In addition, it shows that the automobiles that uses electricity as their fuel have significantly better fuel<br>
+      efficiencies compared to the ones that consume diesel and gasoline.
+      `
       d3.select('#intro')
-      .html("In this presentation, we discuss how automobile specifications such as number of engine cyclinders,<br> \
-      make, and fuel types play a role in the fuel efficiency of automobiles.")
+        .html(p)
+    }
+
+    function getScatterPlotPage2() {
+      const width = 300
+      const height = 300
+      const margin = 60
+      var x = d3.scaleLinear().domain([0, 12]).range([0, width])
+      var y = d3.scaleLog().base(10).domain([10, 150]).range([height, 0])
+      var tooltip = d3.select("#container")
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", "1px")
+        .style("border-radius", "5px")
+        .style("padding", "10px")
+        .style("position", "absolute")
+
+      var mouseover = (d, _) => {
+        tooltip.style("opacity", 1)
+      }
+      var mousemove = (d, e) => {
+        tooltip
+          .html(`Make: ${d.Make}<br>Fuel: ${d.Fuel}<br>Engine Cylinders: ${d.EngineCylinders}<br>Average City MPG: ${d.AverageCityMPG}`)
+          .style("left", (event.x) / 2 + "px")
+          .style("top", (event.y) / 2 + "px")
+      }
+      var mouseleave = (d, _) => {
+        tooltip
+          .transition()
+          .style("opacity", 0)
+      }
+
+      d3.select('#scatterplot').append("g")
+        .attr("transform", "translate(" + margin + "," + margin + ")")
+        .call(d3.axisLeft(y)
+          .tickValues([10, 20, 50, 100])
+          .tickFormat((d, _) => d3.format("~s")(d)));
+
+      d3.select('#scatterplot').append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0)
+        .attr("x", 0 - (height / 2 + margin))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Average City MPG");
+
+      d3.select('#scatterplot').append("g")
+        .attr("transform", "translate(" + margin + "," + (margin + height) + ")")
+        .call(d3.axisBottom(x)
+          .tickValues([0, 2, 4, 6, 8, 10, 12])
+          .tickFormat((d, _) => d3.format("~s")(d)));
+
+      d3.select('#scatterplot').append("text")
+        .attr("transform",
+          "translate(" + (width / 2 + margin) + " ," + (margin + height + 40) + ")")
+        .style("text-anchor", "middle")
+        .text("Number of Cylinders");
+
+      d3.select('#scatterplot')
+        .attr("width", width + 2 * margin).attr("height", height + 2 * margin)
+        .append("g").attr("transform", "translate(" + margin + "," + margin + ")")
+        .selectAll('circle')
+        .data(data)
+        .enter()
+        .append('circle')
+        .attr('class', (d, _) => d.Fuel.toLowerCase())
+        .attr('cx', (d, _) => x(d.EngineCylinders))
+        .attr('cy', (d, _) => y(d.AverageCityMPG))
+        .attr('r', (d, _) => parseInt(d.EngineCylinders) + 2)
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseout", mouseleave);
 
       // Legend
-      d3.select('#scatterplot').append("circle").attr("cx",300).attr("cy",200).attr("r", 3).style("fill", "lightblue")
-      d3.select('#scatterplot').append("circle").attr("cx",300).attr("cy",220).attr("r", 3).style("fill", "pink")
-      d3.select('#scatterplot').append("circle").attr("cx",300).attr("cy",240).attr("r", 3).style("fill", "greenyellow")
-      d3.select('#scatterplot').append("text").attr("x", 320).attr("y", 200).text("Gasoline").style("font-size", "15px").attr("alignment-baseline","middle")
-      d3.select('#scatterplot').append("text").attr("x", 320).attr("y", 220).text("Diesel").style("font-size", "15px").attr("alignment-baseline","middle")
-      d3.select('#scatterplot').append("text").attr("x", 320).attr("y", 240).text("Electricity").style("font-size", "15px").attr("alignment-baseline","middle")
+      d3.select('#scatterplot').append("circle").attr("cx", 300).attr("cy", 200).attr("r", 3).style("fill", "lightblue")
+      d3.select('#scatterplot').append("circle").attr("cx", 300).attr("cy", 220).attr("r", 3).style("fill", "pink")
+      d3.select('#scatterplot').append("circle").attr("cx", 300).attr("cy", 240).attr("r", 3).style("fill", "greenyellow")
+      d3.select('#scatterplot').append("text").attr("x", 320).attr("y", 200).text("Gasoline").style("font-size", "15px").attr("alignment-baseline", "middle")
+      d3.select('#scatterplot').append("text").attr("x", 320).attr("y", 220).text("Diesel").style("font-size", "15px").attr("alignment-baseline", "middle")
+      d3.select('#scatterplot').append("text").attr("x", 320).attr("y", 240).text("Electricity").style("font-size", "15px").attr("alignment-baseline", "middle")
+
+      let p = `
+      From the diagram on the left, we are exploring the correlations between number of automobile cylinders<br>
+      and average miles per galon in the cities. The result is not surprising, that automobiles with more number<br>
+      of cylinders have worse fuel efficiency. Although the result is not surprising, it gives us the visual evidence<br>
+      to confirm our understanding.
+      `
+      d3.select('#intro')
+        .html(p)
     }
 
-    function getBarChartCylinders() {
-      d3.select('#intro')
-      .html("From this slide, we discuss how the number of cylinders correlates to the fuel efficiency.")
-    }
+    function getScatterPlotPage3() {
+      const width = 300
+      const height = 300
+      const margin = 60
+      var x = d3.scaleLinear().domain([0, 12]).range([0, width])
+      var y = d3.scaleLog().base(10).domain([10, 150]).range([height, 0])
+      var tooltip = d3.select("#container")
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", "1px")
+        .style("border-radius", "5px")
+        .style("padding", "10px")
+        .style("position", "absolute")
 
-    function getBarChartFuel() {
+      var mouseover = (d, _) => {
+        tooltip.style("opacity", 1)
+      }
+      var mousemove = (d, e) => {
+        tooltip
+          .html(`Make: ${d.Make}<br>Fuel: ${d.Fuel}<br>Engine Cylinders: ${d.EngineCylinders}<br>Average Highway MPG: ${d.AverageCityMPG}`)
+          .style("left", (event.x) / 2 + "px")
+          .style("top", (event.y) / 2 + "px")
+      }
+      var mouseleave = (d, _) => {
+        tooltip
+          .transition()
+          .style("opacity", 0)
+      }
+
+      d3.select('#scatterplot').append("g")
+        .attr("transform", "translate(" + margin + "," + margin + ")")
+        .call(d3.axisLeft(y)
+          .tickValues([10, 20, 50, 100])
+          .tickFormat((d, _) => d3.format("~s")(d)));
+
+      d3.select('#scatterplot').append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0)
+        .attr("x", 0 - (height / 2 + margin))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Average Highway MPG");
+
+      d3.select('#scatterplot').append("g")
+        .attr("transform", "translate(" + margin + "," + (margin + height) + ")")
+        .call(d3.axisBottom(x)
+          .tickValues([0, 2, 4, 6, 8, 10, 12])
+          .tickFormat((d, _) => d3.format("~s")(d)));
+
+      d3.select('#scatterplot').append("text")
+        .attr("transform",
+          "translate(" + (width / 2 + margin) + " ," + (margin + height + 40) + ")")
+        .style("text-anchor", "middle")
+        .text("Number of Cylinders");
+
+      d3.select('#scatterplot')
+        .attr("width", width + 2 * margin).attr("height", height + 2 * margin)
+        .append("g").attr("transform", "translate(" + margin + "," + margin + ")")
+        .selectAll('circle')
+        .data(data)
+        .enter()
+        .append('circle')
+        .attr('class', (d, _) => d.Fuel.toLowerCase())
+        .attr('cx', (d, _) => x(d.EngineCylinders))
+        .attr('cy', (d, _) => y(d.AverageHighwayMPG))
+        .attr('r', (d, _) => parseInt(d.EngineCylinders) + 2)
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseout", mouseleave);
+
+      // Legend
+      d3.select('#scatterplot').append("circle").attr("cx", 300).attr("cy", 200).attr("r", 3).style("fill", "lightblue")
+      d3.select('#scatterplot').append("circle").attr("cx", 300).attr("cy", 220).attr("r", 3).style("fill", "pink")
+      d3.select('#scatterplot').append("circle").attr("cx", 300).attr("cy", 240).attr("r", 3).style("fill", "greenyellow")
+      d3.select('#scatterplot').append("text").attr("x", 320).attr("y", 200).text("Gasoline").style("font-size", "15px").attr("alignment-baseline", "middle")
+      d3.select('#scatterplot').append("text").attr("x", 320).attr("y", 220).text("Diesel").style("font-size", "15px").attr("alignment-baseline", "middle")
+      d3.select('#scatterplot').append("text").attr("x", 320).attr("y", 240).text("Electricity").style("font-size", "15px").attr("alignment-baseline", "middle")
+
+      let p = `
+      From the diagram on the left, we are exploring the correlations between number of automobile cylinders<br>
+      and average miles per galon on the highways. Slightly different from the previous slide, it shows that<br>
+      in general automobiles perform better when it comes to fuel efficiency. It is expected because the road<br>
+      condition on the highway is generally better than on the local roads. Again, the diagram confirms that<br>
+      our understanding aligns with reality.
+      `
       d3.select('#intro')
-      .html("From this slide, we discuss how types of fuel the automobile comsumes correlate to the fuel efficiency.")
+        .html(p)
     }
 
     function pageMux(page) {
@@ -152,10 +343,10 @@
         getScatterPlot();
       }
       if (page == 2) {
-        getBarChartCylinders();
+        getScatterPlotPage2();
       }
       if (page == 3) {
-        getBarChartFuel();
+        getScatterPlotPage3();
       }
     }
 
@@ -163,7 +354,7 @@
       if (page == 3) return;
       page = Math.min(page + 1, 3)
       d3.select('#scatterplot').html("")
-      d3.select('#page').text(`Page ${page}`)
+      d3.select('#page').text(`Page ${page} / 3`)
       pageMux(page);
     }
 
@@ -171,7 +362,7 @@
       if (page == 1) return;
       page = Math.max(page - 1, 1)
       d3.select('#scatterplot').html("")
-      d3.select('#page').text(`Page ${page}`)
+      d3.select('#page').text(`Page ${page} / 3`)
       pageMux(page);
     }
 
